@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="PR27">
+<meta name="theme-color" content="#231f1c">
+<title>PR27</title>
+<style>
+  :root{
+    --housing:#2b2621;
+    --housing-hi:#3a342d;
+    --housing-lo:#1b1815;
+    --bezel:#12100e;
+    --glass:#160f05;
+    --amber:#f2a63b;
+    --amber-dim:#7a5320;
+    --lamp:#e2452b;
+    --label:#b9ada0;
+    --label-dim:#7a7168;
+    --grille:#191613;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--housing-lo);
+    color:var(--label);
+    font:400 15px/1.45 -apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+    -webkit-user-select:none;user-select:none;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+    overscroll-behavior:none;
+    display:flex;justify-content:center;
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+  .set{
+    width:100%;max-width:430px;
+    display:flex;flex-direction:column;
+    background:linear-gradient(178deg,var(--housing-hi),var(--housing) 22%,var(--housing) 78%,var(--housing-lo));
+    padding:18px 18px 22px;gap:16px;
+  }
+
+  /* ---- faceplate top: brand + display ---- */
+  .brand{
+    display:flex;align-items:baseline;justify-content:space-between;
+    border-bottom:1px solid #0e0c0a;padding-bottom:10px;
+    box-shadow:0 1px 0 #423b33;
+  }
+  .brand b{font:700 19px/1 "Helvetica Neue",sans-serif;letter-spacing:.14em;color:#d8cdc0}
+  .brand span{font-size:11px;color:var(--label-dim);letter-spacing:.06em}
+
+  .display{
+    background:var(--glass);
+    border:1px solid var(--bezel);
+    border-radius:5px;
+    box-shadow:inset 0 3px 12px rgba(0,0,0,.9),inset 0 0 40px rgba(242,166,59,.06);
+    padding:14px 16px 12px;
+    display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:end;
+  }
+  .chan{
+    font:700 62px/.82 ui-monospace,"SF Mono",Menlo,monospace;
+    color:var(--amber);
+    text-shadow:0 0 14px rgba(242,166,59,.45);
+    font-variant-numeric:tabular-nums;
+  }
+  .chan small{font-size:13px;font-weight:400;letter-spacing:.1em;color:var(--amber-dim);display:block;margin-bottom:6px}
+  .lamps{display:flex;flex-direction:column;gap:7px;align-items:flex-end}
+  .lamp{display:flex;align-items:center;gap:6px;font-size:10px;letter-spacing:.12em;color:#4d4238}
+  .lamp i{width:9px;height:9px;border-radius:50%;background:#3a2a20;box-shadow:inset 0 1px 2px #000}
+  .lamp.on{color:#f0c9a0}
+  .lamp.on i{background:var(--lamp);box-shadow:0 0 9px var(--lamp)}
+  .lamp.rx.on i{background:#4ad07a;box-shadow:0 0 9px #4ad07a}
+  .status{
+    grid-column:1/-1;margin-top:8px;padding-top:9px;
+    border-top:1px solid #2a1c0a;
+    font:400 13px/1.3 ui-monospace,"SF Mono",Menlo,monospace;
+    color:var(--amber);min-height:2.6em;
+    text-shadow:0 0 8px rgba(242,166,59,.3);
+  }
+  .status em{color:var(--amber-dim);font-style:normal}
+
+  /* ---- channel row ---- */
+  .chanrow{display:flex;gap:10px;align-items:stretch}
+  .knob{
+    flex:0 0 60px;
+    background:linear-gradient(160deg,#4a423a,#241f1a);
+    border:1px solid #0f0d0b;border-radius:8px;
+    color:#cdbfae;font-size:26px;font-weight:300;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 2px 0 #131110,inset 0 1px 0 #5e544a;
+  }
+  .knob:active{box-shadow:inset 0 2px 6px #000;transform:translateY(1px)}
+  .grille{
+    flex:1;border-radius:8px;
+    background:repeating-linear-gradient(90deg,var(--grille) 0 3px,#0b0a09 3px 6px);
+    border:1px solid #0f0d0b;
+    box-shadow:inset 0 2px 8px rgba(0,0,0,.7);
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;letter-spacing:.1em;color:#544a41;
+  }
+
+  /* ---- roster ---- */
+  .roster{
+    font-size:12px;color:var(--label-dim);
+    display:flex;flex-wrap:wrap;gap:6px;min-height:24px;align-items:center;
+  }
+  .roster b{
+    font-weight:500;color:#cdbfae;background:#221e1a;
+    border:1px solid #0f0d0b;border-radius:11px;padding:3px 10px;
+  }
+  .roster b.tx{color:#f7d6b0;border-color:var(--lamp);background:#2e1c15}
+
+  /* ---- PTT ---- */
+  .ptt{
+    margin-top:auto;
+    height:132px;border-radius:14px;
+    background:linear-gradient(180deg,#5c5348,#332c25 60%,#211c18);
+    border:1px solid #100e0c;
+    box-shadow:0 5px 0 #131110,inset 0 1px 0 #736758;
+    color:#e6d9c8;
+    font:600 17px/1.2 -apple-system,sans-serif;letter-spacing:.02em;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    touch-action:none;
+  }
+  .ptt small{font-weight:400;font-size:12px;color:#9a8d7e;letter-spacing:.04em}
+  .ptt.live{
+    background:linear-gradient(180deg,#8c3320,#5a1f12);
+    box-shadow:0 1px 0 #131110,inset 0 3px 14px rgba(0,0,0,.6);
+    transform:translateY(4px);color:#ffe6d8;
+  }
+  .ptt.live small{color:#e0a894}
+  .ptt:disabled{opacity:.45}
+
+  .row{display:flex;gap:10px}
+  .row button{
+    flex:1;padding:11px;border-radius:8px;
+    background:#241f1b;border:1px solid #0f0d0b;color:var(--label);
+    font-size:13px;box-shadow:inset 0 1px 0 #3d362e;
+  }
+  .row button.act{color:#f2c98b;border-color:#5a4222}
+
+  /* ---- setup ---- */
+  .setup{display:flex;flex-direction:column;gap:14px;justify-content:center;flex:1}
+  .setup h1{font:700 26px/1.2 -apple-system,sans-serif;color:#d8cdc0}
+  .setup p{font-size:14px;color:var(--label-dim);max-width:34ch}
+  label{display:block;font-size:12px;color:var(--label-dim);margin-bottom:5px}
+  input{
+    width:100%;padding:13px 14px;font-size:16px;
+    background:var(--glass);color:var(--amber);
+    border:1px solid var(--bezel);border-radius:6px;
+    font-family:ui-monospace,"SF Mono",Menlo,monospace;
+    box-shadow:inset 0 2px 8px rgba(0,0,0,.8);
+  }
+  input:focus{outline:2px solid var(--amber-dim);outline-offset:1px}
+  .go{
+    padding:16px;border-radius:10px;border:1px solid #0f0d0b;
+    background:linear-gradient(180deg,#5c5348,#332c25);
+    color:#e6d9c8;font:600 16px/1 -apple-system,sans-serif;
+    box-shadow:0 4px 0 #131110,inset 0 1px 0 #736758;
+  }
+  .go:active{transform:translateY(3px);box-shadow:0 1px 0 #131110}
+  .hide{display:none!important}
+  button{-webkit-appearance:none;appearance:none;font-family:inherit;cursor:pointer}
+  button:focus-visible,.go:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="set">
+
+  <!-- SETUP -->
+  <div class="setup" id="setup">
+    <h1>PR27</h1>
+    <p>Családi hangcsatorna. Mindenki ugyanazt a családi kódot írja be, és ugyanarra a csatornára áll.</p>
+    <div>
+      <label for="nick">Hívónév</label>
+      <input id="nick" maxlength="12" placeholder="Peti" autocomplete="off" autocapitalize="words">
+    </div>
+    <div>
+      <label for="room">Családi kód</label>
+      <input id="room" maxlength="20" placeholder="kovacsok77" autocomplete="off" autocapitalize="none" spellcheck="false">
+    </div>
+    <button class="go" id="enter">Bekapcsolás</button>
+    <p style="font-size:12px">A gomb megnyomásakor a telefon mikrofonhozzáférést kér. Engedélyezd, különben nem tudsz adni.</p>
+  </div>
+
+  <!-- RADIO -->
+  <div class="set hide" id="radio" style="padding:0;background:none;max-width:none;width:100%;gap:16px">
+    <div class="brand"><b>PR27</b><span id="me">–</span></div>
+
+    <div class="display">
+      <div class="chan"><small>CSATORNA</small><span id="chNum">19</span></div>
+      <div class="lamps">
+        <div class="lamp tx" id="lampTx"><i></i>ADÁS</div>
+        <div class="lamp rx" id="lampRx"><i></i>VÉTEL</div>
+      </div>
+      <div class="status" id="status"><em>Kapcsolódás…</em></div>
+    </div>
+
+    <div class="chanrow">
+      <button class="knob" id="chDn" aria-label="Csatorna le">–</button>
+      <div class="grille" id="grille">HANGSZÓRÓ</div>
+      <button class="knob" id="chUp" aria-label="Csatorna fel">+</button>
+    </div>
+
+    <div class="roster" id="roster"></div>
+
+    <div class="row">
+      <button id="sqBtn" class="act">Zörej be</button>
+      <button id="leaveBtn">Kilépés</button>
+    </div>
+
+    <button class="ptt" id="ptt">Tartsd nyomva<small>és beszélj</small></button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/mqtt@5/dist/mqtt.min.js"></script>
+<script>
+(() => {
+  "use strict";
+  const BROKER = "wss://broker.emqx.io:8084/mqtt";
+  const MAX_MS = 9000;          // egy adás max hossza
+  const HB_MS  = 4000;          // életjel gyakorisága
+  const GONE_MS = 12000;
+
+  const $ = id => document.getElementById(id);
+  const el = {
+    setup:$("setup"), radio:$("radio"), nick:$("nick"), room:$("room"),
+    enter:$("enter"), me:$("me"), chNum:$("chNum"), status:$("status"),
+    lampTx:$("lampTx"), lampRx:$("lampRx"), chUp:$("chUp"), chDn:$("chDn"),
+    roster:$("roster"), ptt:$("ptt"), sqBtn:$("sqBtn"), leaveBtn:$("leaveBtn"), grille:$("grille")
+  };
+
+  let nick="", room="", ch=19, client=null, id=Math.random().toString(36).slice(2,8);
+  let stream=null, rec=null, chunks=[], sending=false, mime="";
+  let actx=null, hiss=null, hissGain=null, out=null, squelch=true;
+  let peers=new Map(), queue=[], playing=false, hbTimer=null, capTimer=null, wakeLock=null;
+
+  const say = (txt, dim) => el.status.innerHTML = dim ? `<em>${txt}</em>` : txt;
+  const topic = () => `pr27/${room}/${ch}`;
+
+  /* ---------- WebAudio: sercegés, zörej, roger beep ---------- */
+  function audioInit(){
+    if(actx) return;
+    actx = new (window.AudioContext||window.webkitAudioContext)();
+    out = actx.createGain(); out.gain.value = 1; out.connect(actx.destination);
+
+    const len = actx.sampleRate*2, buf = actx.createBuffer(1,len,actx.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i] = Math.random()*2-1;
+    hiss = actx.createBufferSource(); hiss.buffer = buf; hiss.loop = true;
+    const bp = actx.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=2200; bp.Q=0.6;
+    hissGain = actx.createGain(); hissGain.gain.value = squelch ? 0.014 : 0;
+    hiss.connect(bp).connect(hissGain).connect(out);
+    hiss.start();
+  }
+  function crackle(dur=0.22, level=0.35){
+    if(!actx) return;
+    const n = Math.floor(actx.sampleRate*dur);
+    const b = actx.createBuffer(1,n,actx.sampleRate), d = b.getChannelData(0);
+    for(let i=0;i<n;i++){
+      const t = i/n;
+      const env = Math.pow(1-t, 2.2) * (0.35 + 0.65*Math.random());
+      d[i] = (Math.random()*2-1) * env * (Math.random()<0.06 ? 2.4 : 1);
+    }
+    const s = actx.createBufferSource(); s.buffer=b;
+    const f = actx.createBiquadFilter(); f.type="bandpass"; f.frequency.value=1800; f.Q=0.8;
+    const g = actx.createGain(); g.gain.value = level;
+    s.connect(f).connect(g).connect(out); s.start();
+  }
+  function beep(){
+    if(!actx) return;
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.frequency.value = 1150; o.type = "sine";
+    const t = actx.currentTime;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(0.16,t+0.01);
+    g.gain.setValueAtTime(0.16,t+0.07);
+    g.gain.linearRampToValueAtTime(0,t+0.1);
+    o.connect(g).connect(out); o.start(t); o.stop(t+0.12);
+  }
+  const duck = on => { if(hissGain) hissGain.gain.value = on ? 0 : (squelch?0.014:0); };
+
+  /* ---------- csatlakozás ---------- */
+  function connect(){
+    say("Kapcsolódás…", true);
+    client = mqtt.connect(BROKER, {clientId:"pr27_"+id+Math.random().toString(16).slice(2,6), keepalive:30, reconnectPeriod:2000, clean:true});
+    client.on("connect", () => { client.subscribe(topic()); say(`${ch}. csatorna – csend`, true); hb(); });
+    client.on("reconnect", () => say("Újrakapcsolódás…", true));
+    client.on("error", () => say("Nincs kapcsolat. Ellenőrizd a netet."));
+    client.on("message", (t,payload) => { try{ onMsg(JSON.parse(payload.toString())); }catch(e){} });
+    hbTimer = setInterval(hb, HB_MS);
+    setInterval(renderRoster, 2000);
+  }
+  const hb = () => client && client.connected && client.publish(topic(), JSON.stringify({k:"hb", id, nick}));
+
+  function onMsg(m){
+    if(m.id === id) return;
+    peers.set(m.id, {nick:m.nick||"?", t:Date.now(), tx:m.k==="tx"});
+    renderRoster();
+    if(m.k === "tx"){ el.lampRx.classList.add("on"); say(`${m.nick} adásban…`); }
+    if(m.k === "audio"){ queue.push(m); pump(); }
+  }
+  function renderRoster(){
+    const now = Date.now();
+    [...peers].forEach(([k,v]) => { if(now - v.t > GONE_MS) peers.delete(k); });
+    el.roster.innerHTML = peers.size
+      ? [...peers.values()].map(v => `<b class="${v.tx?"tx":""}">${esc(v.nick)}</b>`).join("")
+      : "Senki más nincs a csatornán.";
+  }
+  const esc = s => s.replace(/[<>&"]/g, c => ({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c]));
+
+  /* ---------- lejátszás ---------- */
+  async function pump(){
+    if(playing || !queue.length) return;
+    playing = true;
+    const m = queue.shift();
+    el.lampRx.classList.add("on"); duck(true);
+    say(`${esc(m.nick)} – vétel`);
+    crackle(0.16, 0.4);
+    try{
+      const bytes = Uint8Array.from(atob(m.d), c => c.charCodeAt(0));
+      const buf = await actx.decodeAudioData(bytes.buffer);
+      await new Promise(res => {
+        const s = actx.createBufferSource(); s.buffer = buf;
+        s.connect(out); s.onended = res; s.start(actx.currentTime + 0.14);
+      });
+    }catch(e){ say("Érthetetlen adás."); }
+    crackle(0.18, 0.3); beep();
+    setTimeout(() => {
+      playing = false;
+      if(queue.length) pump();
+      else { el.lampRx.classList.remove("on"); duck(false); say(`${ch}. csatorna – csend`, true); }
+    }, 260);
+  }
+
+  /* ---------- adás ---------- */
+  async function mic(){
+    if(stream) return stream;
+    stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:true}});
+    mime = ["audio/mp4","audio/webm;codecs=opus","audio/webm"].find(t => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || "";
+    return stream;
+  }
+  async function startTx(){
+    if(sending || playing) return;
+    try{ await mic(); }catch(e){ say("A mikrofon nincs engedélyezve."); return; }
+    if(actx && actx.state === "suspended") actx.resume();
+    sending = true; chunks = [];
+    el.ptt.classList.add("live"); el.lampTx.classList.add("on"); duck(true);
+    say("Adás – beszélj!");
+    if(navigator.vibrate) navigator.vibrate(12);
+    client && client.publish(topic(), JSON.stringify({k:"tx", id, nick}));
+    rec = new MediaRecorder(stream, mime?{mimeType:mime}:undefined);
+    rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+    rec.onstop = finishTx;
+    rec.start();
+    capTimer = setTimeout(stopTx, MAX_MS);
+  }
+  function stopTx(){
+    clearTimeout(capTimer);
+    if(!sending) return;
+    sending = false;
+    el.ptt.classList.remove("live"); el.lampTx.classList.remove("on");
+    if(rec && rec.state !== "inactive") rec.stop();
+  }
+  async function finishTx(){
+    duck(false);
+    const blob = new Blob(chunks, {type: mime || "audio/mp4"});
+    if(blob.size < 1200){ say(`${ch}. csatorna – csend`, true); return; }
+    say("Küldés…", true);
+    const b64 = btoa(String.fromCharCode(...new Uint8Array(await blob.arrayBuffer())));
+    if(b64.length > 700000){ say("Túl hosszú adás – rövidebben."); return; }
+    client && client.publish(topic(), JSON.stringify({k:"audio", id, nick, d:b64}));
+    crackle(0.12,0.25); beep();
+    say(`${ch}. csatorna – csend`, true);
+  }
+
+  /* ---------- csatornaváltás ---------- */
+  function setCh(n){
+    const old = topic();
+    ch = ((n - 1 + 40) % 40) + 1;
+    el.chNum.textContent = ch;
+    peers.clear(); renderRoster(); queue = [];
+    if(client && client.connected){ client.unsubscribe(old); client.subscribe(topic()); }
+    crackle(0.14, 0.3);
+    say(`${ch}. csatorna – csend`, true);
+    localStorage.setItem("pr27.ch", ch);
+  }
+
+  /* ---------- indítás ---------- */
+  el.nick.value = localStorage.getItem("pr27.nick") || "";
+  el.room.value = localStorage.getItem("pr27.room") || "";
+  ch = +(localStorage.getItem("pr27.ch") || 19);
+  el.chNum.textContent = ch;
+
+  el.enter.addEventListener("click", async () => {
+    nick = el.nick.value.trim().slice(0,12);
+    room = el.room.value.trim().toLowerCase().replace(/[^a-z0-9]/g,"");
+    if(!nick || room.length < 3){ el.nick.focus(); return; }
+    localStorage.setItem("pr27.nick", nick); localStorage.setItem("pr27.room", room);
+    audioInit();
+    try{ await mic(); }catch(e){}
+    try{ wakeLock = await navigator.wakeLock.request("screen"); }catch(e){}
+    el.me.textContent = nick;
+    el.setup.classList.add("hide"); el.radio.classList.remove("hide");
+    el.grille.textContent = "CSALÁDI KÓD: " + room;
+    connect();
+  });
+  el.room.addEventListener("keydown", e => e.key === "Enter" && el.enter.click());
+
+  el.chUp.addEventListener("click", () => setCh(ch+1));
+  el.chDn.addEventListener("click", () => setCh(ch-1));
+
+  el.sqBtn.addEventListener("click", () => {
+    squelch = !squelch;
+    el.sqBtn.textContent = squelch ? "Zörej be" : "Zörej ki";
+    el.sqBtn.classList.toggle("act", squelch);
+    duck(false);
+  });
+  el.leaveBtn.addEventListener("click", () => location.reload());
+
+  const p = el.ptt;
+  p.addEventListener("pointerdown", e => { e.preventDefault(); p.setPointerCapture(e.pointerId); startTx(); });
+  p.addEventListener("pointerup", e => { e.preventDefault(); stopTx(); });
+  p.addEventListener("pointercancel", stopTx);
+  p.addEventListener("contextmenu", e => e.preventDefault());
+  document.addEventListener("visibilitychange", () => { if(document.hidden) stopTx(); });
+})();
+</script>
+</body>
+</html>
